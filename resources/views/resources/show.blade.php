@@ -1,7 +1,9 @@
 @extends('template.index_resources')
 
 @section('title')
-     {{ $resource->title }}
+
+  {{ $resource->title }}
+  
 @endsection
 
 @section('content')
@@ -45,10 +47,12 @@
             <div class="wrapper-morefrom">
                 <div class="text-morefrom">More from {{ $resource->categories->name }}</div>
 
+                    <!-- Affiche 4 posts aléatoires de la même catégorie (en excluant le post déjà affiché) -->
                     <?php $catNub = $resource->category_id; ?>
-                    @include('resources._recent', ['resources' => \App\Models\Resource::where(function ($query) use ($catNub) {
-                          $query->where('category_id', '=', $catNub);
-                    })->orderBy(DB::raw('RANDOM()'))->take(4)->get()
+                    <?php $resourceNub = $resource->id; ?>
+                    @include('resources._recent', ['resources' => \App\Models\Resource::where(function ($query) use ($catNub, $resourceNub) {
+                          $query->where('category_id', '=', $catNub)->where('id', '!=', $resourceNub);
+                    })->orderBy(DB::raw('RAND()'))->take(4)->get()
                     ])
                     
             </div>
@@ -82,6 +86,7 @@
             message: $(this).find('#message').val(),
             resourceID: $(this).find('#resourceID').val()
         })
+        // Vide la liste des commentaires, puis les rajoute sauf le dernier, qui est caché puis apparait avec un effet.
         .always(function(rep) {
             $('#comments_list').empty()
                                .append(rep)
